@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	repo "github.com/Didul-arch/sipesat/internal/adapters/postgresql/sqlc"
+	"github.com/Didul-arch/sipesat/internal/subjects"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,6 +26,14 @@ func (app *application) mount() http.Handler {
 	r.Get("/checkhealth", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("all good :D"))
 	})
+
+	queries := repo.New(app.db)
+
+	// Subjects
+	subjectService := subjects.NewService(queries)
+	subjectHandler := subjects.NewHandler(subjectService)
+
+	r.Get("/v1/subjects", subjectHandler.ListSubjects)
 
 	return r
 }

@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
 	"os"
+
+	"github.com/Didul-arch/sipesat/internal/env"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
@@ -15,7 +17,7 @@ func main() {
 	cfg := config{
 		addr: ":8080",
 		db: dbConfig{
-			dsn: os.Getenv("DATABASE_URL"),
+			dsn: env.GetEnv("GOOSE_DBSTRING", "postgres://user:password@localhost:5432/dbname"),
 		},
 	}
 
@@ -28,6 +30,7 @@ func main() {
 	defer pool.Close()
 
 	if err := pool.Ping(ctx); err != nil {
+		slog.Error(os.Getenv("GOOSE_DBSTRING"))
 		slog.Error("Database unable to be pinged!", "error", err)
 		os.Exit(1)
 	}
